@@ -8,3 +8,10 @@ Code quality is decent. Some inspiration to get the code more rust-like (instead
 
 This was before the rendering bugs got fixed
 ![Render](./final.png)
+
+## Personal goals for the project
+
+- [x] Learn rust
+- [x] Basic ray tracing
+- [x] Basic multithreading
+- [ ] Optimization
