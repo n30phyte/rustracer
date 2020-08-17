@@ -1,5 +1,4 @@
-use crate::types::ray::Ray;
-use crate::types::vector::Vec3;
+use super::vector::{Ray, Vec3};
 use crate::utils::deg_to_rad;
 
 pub struct Camera {
@@ -26,8 +25,8 @@ impl Camera {
         let viewport_width = aspect_ratio * viewport_height;
 
         let w = (look_from - look_at).unit();
-        let u = (Vec3::cross(&v_up, &w)).unit();
-        let v = Vec3::cross(&w, &u);
+        let u = (Vec3::cross(v_up, w)).unit();
+        let v = Vec3::cross(w, u);
 
         let origin = look_from;
         let horizontal = focus_distance * viewport_width * u;
