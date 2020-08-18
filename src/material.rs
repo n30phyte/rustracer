@@ -1,7 +1,6 @@
 use super::{vector::{Ray, Vec3}};
 use rand::Rng;
 use super::models::Hit;
-use std::ops::Neg;
 
 pub struct Scatter {
     pub attenuation: Vec3,

@@ -10,34 +10,13 @@ use camera::Camera;
 use material::{Dielectric, Lambertian, Metal};
 use models::{Model, Sphere};
 use vector::Vec3;
-use crate::renderer::{render, render_par};
-
-
-// fn ray_color(r: Ray, world: &dyn Model, depth: usize) -> Vec3 {
-//     if depth == 0 {
-//         return Vec3(0.0, 0.0, 0.0);
-//     }
-//
-//     match world.hit(&r) {
-//         HitRecResult::Hit(rec) => match rec.material.scatter(r, &rec) {
-//             ScatterRecResult::Hit(rec) => {
-//                 return rec.attenuation * ray_color(&rec.ray, world, depth - 1);
-//             }
-//             ScatterRecResult::Miss => Vec3::new(0.0, 0.0, 0.0),
-//         },
-//         _ => {
-//             let unit_direction = r.direction.unit();
-//             let t = 0.5 * (unit_direction.y() + 1.0);
-//             (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
-//         }
-//     }
-// }
+use crate::renderer::render_par;
 
 fn generate_world() -> Box<dyn Model + Sync> {
     let mut rng = rand::thread_rng();
 
     // World
-    let mut world: Vec<Box<dyn Model+ Sync>> = Vec::new();
+    let mut world: Vec<Box<dyn Model + Sync>> = Vec::new();
 
     // Ground
     world.push(Box::new(Sphere {
@@ -117,10 +96,9 @@ fn generate_world() -> Box<dyn Model + Sync> {
 }
 
 
-
 fn glass_test() -> Box<dyn Model + Sync> {
     // World
-    let mut world: Vec<Box<dyn Model+ Sync>> = Vec::new();
+    let mut world: Vec<Box<dyn Model + Sync>> = Vec::new();
 
     // Ground
     world.push(Box::new(Sphere {
@@ -160,7 +138,7 @@ fn glass_test() -> Box<dyn Model + Sync> {
 }
 
 fn main() {
-    const IMAGE_WIDTH: usize = 1200;
+    const IMAGE_WIDTH: usize = 900;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const ASPECT_RATIO: f64 = 3.0 / 2.0;
     const SAMPLES_PER_PIXEL: usize = 500;
@@ -168,13 +146,13 @@ fn main() {
     let world = generate_world();
 
     let camera = Camera::new(
-        Vec3(13.0, 2.0, 3.0),
-        Vec3(0.0, 0.0, 0.0),
+        Vec3(11.0, 3.0, 11.0),
+        Vec3(0.0, 1.0, 0.0),
         Vec3(0.0, 1.0, 0.0),
         20.0,
         ASPECT_RATIO,
         0.1,
-        10.0,
+        16.0,
     );
 
     let image = render_par(world, Box::from(camera), IMAGE_WIDTH, IMAGE_HEIGHT, SAMPLES_PER_PIXEL);
