@@ -1,11 +1,12 @@
 extern crate num;
 
 use std::{fmt, ops};
-use rand::Rng;
+
 use num::traits::Inv;
 use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
 impl Vec3 {
@@ -20,7 +21,7 @@ impl Vec3 {
     }
 
     pub fn dot(u: Vec3, v: Vec3) -> f64 {
-        u.0 * v.0 + u.1 * v.1 + u.2 * v.2
+        (u * v).accumulate()
     }
 
     pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
@@ -92,6 +93,10 @@ impl Vec3 {
         let scale = 1.0 / samples as f64;
         let b = (b * scale).sqrt();
         (256.0 * num::clamp(b, 0.0, 0.999)) as u8
+    }
+
+    pub fn accumulate(&self) -> f64 {
+        self.0 + self.1 + self.2
     }
 }
 
@@ -179,5 +184,65 @@ pub struct Ray {
 impl Ray {
     pub fn at(&self, t: f64) -> Vec3 {
         self.origin + (t * self.direction)
+    }
+}
+
+
+impl From<Vec3> for [f64; 3] {
+    fn from(source: Vec3) -> Self {
+        [source.0, source.1, source.2]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const VEC1: Vec3 = Vec3(1.0, 2.0, 3.0);
+    const VEC2: Vec3 = Vec3(3.0, 2.0, 1.0);
+
+    #[test]
+    fn test_addition() {
+        assert_eq!(VEC1 + VEC2, Vec3(4.0, 4.0, 4.0));
+    }
+
+    #[test]
+    fn test_subtraction() {
+        assert_eq!(VEC2 - VEC2, Vec3(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn test_vector_multiplication() {
+        assert_eq!(VEC1 * VEC2, Vec3(3.0, 4.0, 3.0));
+    }
+
+    #[test]
+    fn test_negation() {
+        assert_eq!(-VEC1, Vec3(-1.0, -2.0, -3.0));
+    }
+
+    #[test]
+    fn test_float_multiplication() {
+        assert_eq!(2.0 * VEC1, Vec3(2.0, 4.0, 6.0));
+    }
+
+    #[test]
+    fn test_float_division() {
+        assert_eq!(VEC1 / 2.0, Vec3(0.5, 1.0, 1.5));
+    }
+
+    #[test]
+    fn test_dot_product() {
+        assert_eq!(Vec3::dot(VEC1, VEC2), 10.0);
+    }
+
+    #[test]
+    fn test_cross_product() {
+        assert_eq!(Vec3::cross(VEC1, VEC2), Vec3(-4.0, 8.0, -4.0));
+    }
+
+    #[test]
+    fn test_len() {
+        assert_eq!(VEC1.len(), 14.0.sqrt())
     }
 }

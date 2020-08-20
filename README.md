@@ -15,3 +15,5 @@ This was before the rendering bugs got fixed
 - [x] Basic ray tracing
 - [x] Basic multithreading
 - [ ] Optimization
+  - [x] Recursion -> Iteration conversion
+  - [ ] Profiling

@@ -1,7 +1,10 @@
-use super::{vector::{Vec3, Ray}, material::Material};
+use super::vector::{Vec3, Ray};
+use super::material::Material;
+use super::aabb::AABB;
+use std::sync::Arc;
 
 // Minimum t to reduce acne
-const T_MIN: f64 = 0.0001;
+pub(crate) const T_MIN: f64 = 0.0001;
 
 #[derive(Clone, Copy)]
 pub struct Hit<'a> {
@@ -24,14 +27,15 @@ pub fn get_face_normal(r: &Ray, outward_normal: Vec3) -> (bool, Vec3) {
 }
 
 
-pub trait Model {
+pub trait Model: Send + Sync  {
     fn hit(&self, r: &Ray) -> Option<Hit>;
+    fn bounding_box(&self, t_0: f64, t_1: f64) -> Option<AABB>;
 }
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
-    pub material: Box<dyn Material + Sync>,
+    pub material: Box<dyn Material>,
 }
 
 impl Model for Sphere {
@@ -39,8 +43,8 @@ impl Model for Sphere {
         let oc = r.origin - self.center;
         let a = r.direction.len_sqr();
         let hf_b = Vec3::dot(oc, r.direction);
-        let c = oc.len_sqr() - (self.radius * self.radius);
-        let discriminant: f64 = (hf_b * hf_b) - (a * c);
+        let c = oc.len_sqr() - self.radius.powi(2);
+        let discriminant: f64 = hf_b.powi(2) - (a * c);
 
         if discriminant > 0.0 {
             let root = discriminant.sqrt();
@@ -74,9 +78,17 @@ impl Model for Sphere {
 
         None
     }
+
+    fn bounding_box(&self, _t_0: f64, _t_1: f64) -> Option<AABB> {
+        Some(AABB {
+            min: self.
+                center - Vec3(self.radius, self.radius, self.radius),
+            max: self.center + Vec3(self.radius, self.radius, self.radius),
+        })
+    }
 }
 
-impl Model for Vec<Box<dyn Model+ Sync>> {
+impl Model for Vec<Arc<dyn Model>> {
     fn hit(&self, r: &Ray) -> Option<Hit> {
         let mut closest_so_far: Option<Hit> = None;
         for item in self {
@@ -92,4 +104,25 @@ impl Model for Vec<Box<dyn Model+ Sync>> {
 
         closest_so_far
     }
+
+    fn bounding_box(&self, t_0: f64, t_1: f64) -> Option<AABB> {
+        if self.is_empty() {
+            return None;
+        }
+
+        let mut first_box = true;
+        let mut output_box: AABB = AABB { min: Vec3(0.0, 0.0, 0.0), max: Vec3(0.0, 0.0, 0.0) };
+        for item in self {
+            if let Some(bounding_box) = item.bounding_box(t_0, t_1) {
+                output_box = if first_box {
+                    first_box = false;
+                    bounding_box
+                } else { AABB::surrounding_box(output_box, bounding_box) }
+            } else {
+                return None;
+            }
+        }
+        Some(output_box)
+    }
 }
+

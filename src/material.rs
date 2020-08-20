@@ -1,13 +1,14 @@
-use super::{vector::{Ray, Vec3}};
 use rand::Rng;
+
 use super::models::Hit;
+use super::{vector::{Ray, Vec3}};
 
 pub struct Scatter {
     pub attenuation: Vec3,
     pub ray: Ray,
 }
 
-pub trait Material {
+pub trait Material: Send + Sync {
     fn scatter(&self, r_in: &Ray, hit: &Hit) -> Option<Scatter>;
 }
 

@@ -1,5 +1,4 @@
 use super::vector::{Ray, Vec3};
-use crate::utils::deg_to_rad;
 
 pub struct Camera {
     origin: Vec3,
@@ -18,7 +17,7 @@ impl Camera {
                aperture: f64, focus_distance: f64) -> Camera {
         // Camera Properties
 
-        let theta = deg_to_rad(vert_fov);
+        let theta = vert_fov.to_degrees();
         let h = (theta / 2.0).tan();
 
         let viewport_height = 2.0 * h;
