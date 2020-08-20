@@ -38,12 +38,12 @@ fn generate_world() -> Box<dyn Model> {
 
     for a in -11..11 {
         for b in -11..11 {
-            let random_mat = rng.gen::<f64>();
+            let random_mat = rng.gen::<f32>();
 
             let center = Vec3(
-                a as f64 + 0.9 * rng.gen::<f64>(),
+                a as f32 + 0.9 * rng.gen::<f32>(),
                 0.2,
-                b as f64 + 0.9 * rng.gen::<f64>(),
+                b as f32 + 0.9 * rng.gen::<f32>(),
             );
 
             if (center - Vec3(4.0, 0.2, 0.0)).len() > 0.9 {
@@ -148,22 +148,23 @@ fn glass_test() -> Box<dyn Model> {
 }
 
 fn main() {
-    const IMAGE_WIDTH: usize = 800;
-    const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
-    const ASPECT_RATIO: f64 = 3.0 / 2.0;
+    const ASPECT_RATIO: f32 = 3.0 / 2.0;
+    const IMAGE_WIDTH: usize = 1200;
+    const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as usize;
     const SAMPLES_PER_PIXEL: usize = 500;
 
-    let world = glass_test();
+    let world = generate_world();
 
     let camera = Camera::new(
+        Vec3(13.0, 2.0, 3.0),
         Vec3(0.0, 0.0, 0.0),
-        Vec3(0.0, 0.0, -1.0),
         Vec3(0.0, 1.0, 0.0),
-        90.0,
+        20.0,
         ASPECT_RATIO,
         0.1,
-        2.0,
+        10.0,
     );
+
 
     let image = render_par(world, Box::from(camera), IMAGE_WIDTH, IMAGE_HEIGHT, SAMPLES_PER_PIXEL);
 

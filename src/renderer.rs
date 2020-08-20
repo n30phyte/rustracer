@@ -68,8 +68,8 @@ fn core_render(camera: &Box<Camera>, height: usize, width: usize, samples: usize
         let mut pixel_color = Vec3(0.0, 0.0, 0.0);
 
         for _ in 0..samples {
-            let u = (i as f64 + rng.gen::<f64>()) / (width - 1) as f64;
-            let v = (j as f64 + rng.gen::<f64>()) / (height - 1) as f64;
+            let u = (i as f32 + rng.gen::<f32>()) / (width - 1) as f32;
+            let v = (j as f32 + rng.gen::<f32>()) / (height - 1) as f32;
             let r = camera.get_ray(u, v);
             pixel_color = pixel_color + ray_color_iter(r, world.as_ref(), 50);
         }
@@ -94,7 +94,9 @@ pub fn render(world: Box<dyn Model>, camera: Box<Camera>, width: usize, height: 
 }
 
 pub fn render_par(world: Box<dyn Model>, camera: Box<Camera>, width: usize, height: usize, samples: usize) -> Arc<Mutex<Vec<Vec<Pixel>>>> {
-    let frame = Arc::new(Mutex::new(vec![Vec::with_capacity(5); height]));
+    rayon::ThreadPoolBuilder::new().num_threads(num_cpus::get()).build_global().unwrap();
+
+    let frame = Arc::new(Mutex::new(vec![Vec::with_capacity(1); height]));
 
     (0..height).into_par_iter().for_each(|j| {
         let line = core_render(&camera, height, width, samples, j, &world);

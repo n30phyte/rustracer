@@ -11,11 +11,11 @@ pub struct AABB {
 
 impl AABB {
     pub fn hit(&self, r: &Ray) -> bool {
-        let temp_min = <[f64; 3]>::from(self.min);
-        let temp_max = <[f64; 3]>::from(self.max);
+        let temp_min = <[f32; 3]>::from(self.min);
+        let temp_max = <[f32; 3]>::from(self.max);
 
-        let temp_r_orig = <[f64; 3]>::from(r.origin);
-        let temp_r_dir = <[f64; 3]>::from(r.direction);
+        let temp_r_orig = <[f32; 3]>::from(r.origin);
+        let temp_r_dir = <[f32; 3]>::from(r.direction);
 
         for i in 0..3 {
             let inv_dir = temp_r_dir[i].recip();
@@ -28,7 +28,7 @@ impl AABB {
             }
 
             let t_min = if t_0 > T_MIN { t_0 } else { T_MIN };
-            let t_max = if t_1 > f64::infinity() { t_1 } else { f64::infinity() };
+            let t_max = if t_1 > f32::infinity() { t_1 } else { f32::infinity() };
 
             if t_max <= t_min {
                 return false;

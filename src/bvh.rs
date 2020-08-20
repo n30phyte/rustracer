@@ -30,10 +30,10 @@ impl BvhNode {
         if let Some(bbox) = b.bounding_box(0.0, 0.0) {
             box_b = bbox;
         }
-        return <[f64; 3]>::from(box_a.min)[c as usize] < <[f64; 3]>::from(box_b.min)[c as usize];
+        return <[f32; 3]>::from(box_a.min)[c as usize] < <[f32; 3]>::from(box_b.min)[c as usize];
     }
 
-    pub fn new(models: &mut Vec<Arc<dyn Model>>, start: usize, end: usize, time0: f64, time1: f64) -> BvhNode {
+    pub fn new(models: &mut Vec<Arc<dyn Model>>, start: usize, end: usize, time0: f32, time1: f32) -> BvhNode {
         let mut rng = rand::thread_rng();
         let axis: u8 = rng.gen_range(0, 2);
         let comparator = |a: Arc<dyn Model>, b: Arc<dyn Model>| BvhNode::box_compare(a, b, axis);
@@ -106,7 +106,7 @@ impl Model for BvhNode {
         return None;
     }
 
-    fn bounding_box(&self, t_0: f64, t_1: f64) -> Option<AABB> {
+    fn bounding_box(&self, t_0: f32, t_1: f32) -> Option<AABB> {
         Some(self.bounding_box.clone())
     }
 }

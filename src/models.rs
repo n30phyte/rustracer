@@ -4,13 +4,13 @@ use super::aabb::AABB;
 use std::sync::Arc;
 
 // Minimum t to reduce acne
-pub(crate) const T_MIN: f64 = 0.0001;
+pub(crate) const T_MIN: f32 = 0.0001;
 
 #[derive(Clone, Copy)]
 pub struct Hit<'a> {
     pub point: Vec3,
     pub normal: Vec3,
-    pub t: f64,
+    pub t: f32,
     pub front_face: bool,
     pub material: &'a dyn Material,
 }
@@ -29,12 +29,12 @@ pub fn get_face_normal(r: &Ray, outward_normal: Vec3) -> (bool, Vec3) {
 
 pub trait Model: Send + Sync  {
     fn hit(&self, r: &Ray) -> Option<Hit>;
-    fn bounding_box(&self, t_0: f64, t_1: f64) -> Option<AABB>;
+    fn bounding_box(&self, t_0: f32, t_1: f32) -> Option<AABB>;
 }
 
 pub struct Sphere {
     pub center: Vec3,
-    pub radius: f64,
+    pub radius: f32,
     pub material: Box<dyn Material>,
 }
 
@@ -44,7 +44,7 @@ impl Model for Sphere {
         let a = r.direction.len_sqr();
         let hf_b = Vec3::dot(oc, r.direction);
         let c = oc.len_sqr() - self.radius.powi(2);
-        let discriminant: f64 = hf_b.powi(2) - (a * c);
+        let discriminant: f32 = hf_b.powi(2) - (a * c);
 
         if discriminant > 0.0 {
             let root = discriminant.sqrt();
@@ -79,7 +79,7 @@ impl Model for Sphere {
         None
     }
 
-    fn bounding_box(&self, _t_0: f64, _t_1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _t_0: f32, _t_1: f32) -> Option<AABB> {
         Some(AABB {
             min: self.
                 center - Vec3(self.radius, self.radius, self.radius),
@@ -105,7 +105,7 @@ impl Model for Vec<Arc<dyn Model>> {
         closest_so_far
     }
 
-    fn bounding_box(&self, t_0: f64, t_1: f64) -> Option<AABB> {
+    fn bounding_box(&self, t_0: f32, t_1: f32) -> Option<AABB> {
         if self.is_empty() {
             return None;
         }

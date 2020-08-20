@@ -34,7 +34,7 @@ pub fn reflect(incident: Vec3, normal: Vec3) -> Vec3 {
 
 pub struct Metal {
     pub albedo: Vec3,
-    pub fuzz: f64,
+    pub fuzz: f32,
 }
 
 impl Material for Metal {
@@ -56,7 +56,7 @@ impl Material for Metal {
     }
 }
 
-pub fn refract(uv: Vec3, normal: Vec3, eta_over_etaprime: f64) -> Vec3 {
+pub fn refract(uv: Vec3, normal: Vec3, eta_over_etaprime: f32) -> Vec3 {
     let cos_theta = Vec3::dot(-uv, normal);
     let r_out_perpendicular = eta_over_etaprime * (uv + (cos_theta * normal));
     let r_out_parallel = -((1.0 - r_out_perpendicular.len_sqr()).abs().sqrt()) * normal;
@@ -64,11 +64,11 @@ pub fn refract(uv: Vec3, normal: Vec3, eta_over_etaprime: f64) -> Vec3 {
 }
 
 pub struct Dielectric {
-    pub refractive_index: f64,
+    pub refractive_index: f32,
 }
 
 impl Dielectric {
-    fn schlick(cosine: f64, refractive_index: f64) -> f64 {
+    fn schlick(cosine: f32, refractive_index: f32) -> f32 {
         let r0 = (1.0 - refractive_index) / (1.0 + refractive_index);
         let r0 = r0 * r0;
 
@@ -106,7 +106,7 @@ impl Material for Dielectric {
         
         let mut rng = rand::thread_rng();
 
-        if rng.gen::<f64>() < Dielectric::schlick(cos_theta, etai_over_etat) {
+        if rng.gen::<f32>() < Dielectric::schlick(cos_theta, etai_over_etat) {
             return reflect_scatter;
         }
 
