@@ -1,6 +1,6 @@
-use super::vector::{Vec3, Ray};
-use super::material::Material;
 use super::aabb::AABB;
+use super::material::Material;
+use super::vector::{Ray, Vec3};
 use std::sync::Arc;
 
 // Minimum t to reduce acne
@@ -26,8 +26,7 @@ pub fn get_face_normal(r: &Ray, outward_normal: Vec3) -> (bool, Vec3) {
     (front_face, normal)
 }
 
-
-pub trait Model: Send + Sync  {
+pub trait Model: Send + Sync {
     fn hit(&self, r: &Ray) -> Option<Hit>;
     fn bounding_box(&self, t_0: f32, t_1: f32) -> Option<AABB>;
 }
@@ -81,8 +80,7 @@ impl Model for Sphere {
 
     fn bounding_box(&self, _t_0: f32, _t_1: f32) -> Option<AABB> {
         Some(AABB {
-            min: self.
-                center - Vec3(self.radius, self.radius, self.radius),
+            min: self.center - Vec3(self.radius, self.radius, self.radius),
             max: self.center + Vec3(self.radius, self.radius, self.radius),
         })
     }
@@ -95,8 +93,10 @@ impl Model for Vec<Arc<dyn Model>> {
             if let Some(hit) = item.hit(r) {
                 match closest_so_far {
                     None => closest_so_far = Some(hit),
-                    Some(old) => if hit.t < old.t {
-                        closest_so_far = Some(hit);
+                    Some(old) => {
+                        if hit.t < old.t {
+                            closest_so_far = Some(hit);
+                        }
                     }
                 }
             }
@@ -111,13 +111,18 @@ impl Model for Vec<Arc<dyn Model>> {
         }
 
         let mut first_box = true;
-        let mut output_box: AABB = AABB { min: Vec3(0.0, 0.0, 0.0), max: Vec3(0.0, 0.0, 0.0) };
+        let mut output_box: AABB = AABB {
+            min: Vec3(0.0, 0.0, 0.0),
+            max: Vec3(0.0, 0.0, 0.0),
+        };
         for item in self {
             if let Some(bounding_box) = item.bounding_box(t_0, t_1) {
                 output_box = if first_box {
                     first_box = false;
                     bounding_box
-                } else { AABB::surrounding_box(output_box, bounding_box) }
+                } else {
+                    AABB::surrounding_box(output_box, bounding_box)
+                }
             } else {
                 return None;
             }
@@ -125,4 +130,3 @@ impl Model for Vec<Arc<dyn Model>> {
         Some(output_box)
     }
 }
-

@@ -1,12 +1,11 @@
-use super::vector::{Vec3, Ray};
 use super::models::T_MIN;
+use super::vector::{Ray, Vec3};
 use num::Float;
 
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 pub struct AABB {
     pub min: Vec3,
     pub max: Vec3,
-
 }
 
 impl AABB {
@@ -28,7 +27,11 @@ impl AABB {
             }
 
             let t_min = if t_0 > T_MIN { t_0 } else { T_MIN };
-            let t_max = if t_1 > f32::infinity() { t_1 } else { f32::infinity() };
+            let t_max = if t_1 > f32::infinity() {
+                t_1
+            } else {
+                f32::infinity()
+            };
 
             if t_max <= t_min {
                 return false;
@@ -39,14 +42,21 @@ impl AABB {
     }
 
     pub fn surrounding_box(box0: AABB, box1: AABB) -> AABB {
-        let small = Vec3(box0.min.x().min(box1.min.x()),
-                         box0.min.y().min(box1.min.y()),
-                         box0.min.z().min(box1.min.z()));
+        let small = Vec3(
+            box0.min.x().min(box1.min.x()),
+            box0.min.y().min(box1.min.y()),
+            box0.min.z().min(box1.min.z()),
+        );
 
-        let big = Vec3(box0.max.x().max(box1.max.x()),
-                       box0.max.y().max(box1.max.y()),
-                       box0.max.z().max(box1.max.z()));
+        let big = Vec3(
+            box0.max.x().max(box1.max.x()),
+            box0.max.y().max(box1.max.y()),
+            box0.max.z().max(box1.max.z()),
+        );
 
-        AABB { min: small, max: big }
+        AABB {
+            min: small,
+            max: big,
+        }
     }
 }

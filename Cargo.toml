@@ -1,3 +1,5 @@
+cargo-features = ["named-profiles"]
+
 [package]
 name = "rustracer"
 version = "0.1.0"
@@ -5,9 +7,13 @@ authors = ["Michael Kwok <michael.kwok00@gmail.com>"]
 edition = "2018"
 
 [profile.release]
-debug = true
 lto = "fat"
-target-cpu = "native"
+codegen-units = 1
+
+
+[profile.benchmark]
+inherits = "release"
+lto = "fat"
 codegen-units = 1
 
 [dependencies]
@@ -16,3 +22,4 @@ rand = "^0.7.3"
 rayon = "^1.3.1"
 png = "^0.16.7"
 num_cpus = "^1.13.0"
+indicatif = {version = "*", features = ["rayon"]}

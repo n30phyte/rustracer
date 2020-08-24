@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use super::models::Hit;
-use super::{vector::{Ray, Vec3}};
+use super::vector::{Ray, Vec3};
 
 pub struct Scatter {
     pub attenuation: Vec3,
@@ -42,7 +42,7 @@ impl Material for Metal {
         let reflected = reflect(r_in.direction, hit.normal);
         let scattered = Ray {
             origin: hit.point,
-            direction: reflected /*+(self.fuzz * Vec3::random_unit_sphere())*/,
+            direction: reflected + (self.fuzz * Vec3::random_unit_sphere()),
         };
 
         if Vec3::dot(scattered.direction, hit.normal) > 0.0 {
@@ -103,7 +103,7 @@ impl Material for Dielectric {
         if (etai_over_etat * sin_theta) > 1.0 {
             return reflect_scatter;
         }
-        
+
         let mut rng = rand::thread_rng();
 
         if rng.gen::<f32>() < Dielectric::schlick(cos_theta, etai_over_etat) {
@@ -120,4 +120,3 @@ impl Material for Dielectric {
         })
     }
 }
-

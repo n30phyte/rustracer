@@ -25,9 +25,11 @@ impl Vec3 {
     }
 
     pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
-        Vec3((u.y() * v.z()) - (u.z() * v.y()),
-             -(u.x() * v.z()) + (u.z() * v.x()),
-             (u.x() * v.y()) - (u.y() * v.x()))
+        Vec3(
+            (u.y() * v.z()) - (u.z() * v.y()),
+            -(u.x() * v.z()) + (u.z() * v.x()),
+            (u.x() * v.y()) - (u.y() * v.x()),
+        )
     }
 
     pub fn len_sqr(&self) -> f32 {
@@ -45,7 +47,11 @@ impl Vec3 {
     pub fn random(min: f32, max: f32) -> Vec3 {
         let mut rng = rand::thread_rng();
 
-        Vec3(rng.gen_range(min, max), rng.gen_range(min, max), rng.gen_range(min, max))
+        Vec3(
+            rng.gen_range(min, max),
+            rng.gen_range(min, max),
+            rng.gen_range(min, max),
+        )
     }
 
     pub fn random_unit_disk() -> Vec3 {
@@ -53,14 +59,18 @@ impl Vec3 {
 
         loop {
             let p = Vec3(rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0), 0.0);
-            if p.len_sqr() <= 1.0 { return p; }
+            if p.len_sqr() <= 1.0 {
+                return p;
+            }
         }
     }
 
     pub fn random_unit_sphere() -> Vec3 {
         loop {
             let p = Vec3::random(-1.0, 1.0);
-            if p.len_sqr() <= 1.0 { return p; }
+            if p.len_sqr() <= 1.0 {
+                return p;
+            }
         }
     }
 
@@ -122,7 +132,6 @@ impl ops::Sub for Vec3 {
     }
 }
 
-
 impl ops::Neg for Vec3 {
     type Output = Vec3;
 
@@ -135,20 +144,19 @@ impl ops::Mul<f32> for Vec3 {
     type Output = Self;
 
     fn mul(self, rhs: f32) -> Self::Output {
-        Vec3(self.x() * rhs as f32,
-             self.y() * rhs as f32,
-             self.z() * rhs as f32, )
+        Vec3(
+            self.x() * rhs as f32,
+            self.y() * rhs as f32,
+            self.z() * rhs as f32,
+        )
     }
 }
-
 
 impl ops::Mul<Vec3> for f32 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3(self * rhs.x(),
-             self * rhs.y() as f32,
-             self * rhs.z() as f32, )
+        Vec3(self * rhs.x(), self * rhs.y() as f32, self * rhs.z() as f32)
     }
 }
 
@@ -156,9 +164,11 @@ impl ops::Mul<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3(self.x() * rhs.x() as f32,
-             self.y() * rhs.y() as f32,
-             self.z() * rhs.z() as f32, )
+        Vec3(
+            self.x() * rhs.x() as f32,
+            self.y() * rhs.y() as f32,
+            self.z() * rhs.z() as f32,
+        )
     }
 }
 
@@ -186,7 +196,6 @@ impl Ray {
         self.origin + (t * self.direction)
     }
 }
-
 
 impl From<Vec3> for [f32; 3] {
     fn from(source: Vec3) -> Self {

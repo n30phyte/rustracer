@@ -12,12 +12,18 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(look_from: Vec3, look_at: Vec3, v_up: Vec3,
-               vert_fov: f32, aspect_ratio: f32,
-               aperture: f32, focus_distance: f32) -> Camera {
+    pub fn new(
+        look_from: Vec3,
+        look_at: Vec3,
+        v_up: Vec3,
+        vert_fov: f32,
+        aspect_ratio: f32,
+        aperture: f32,
+        focus_distance: f32,
+    ) -> Camera {
         // Camera Properties
 
-        let theta = vert_fov.to_degrees();
+        let theta = vert_fov.to_radians();
         let h = (theta / 2.0).tan();
 
         let viewport_height = 2.0 * h;
@@ -47,7 +53,9 @@ impl Camera {
         let offset = self.u * rd.x() + self.v * rd.y();
         Ray {
             origin: self.origin + offset,
-            direction: self.lower_left_corner + (s * self.horizontal) + (t * self.vertical) - self.origin - offset,
+            direction: self.lower_left_corner + (s * self.horizontal) + (t * self.vertical)
+                - self.origin
+                - offset,
         }
     }
 }

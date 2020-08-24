@@ -4,6 +4,7 @@ use rayon::prelude::*;
 use super::{camera::Camera, models::Model, vector::Ray, vector::Vec3};
 use std::sync::*;
 
+use indicatif::ProgressBar;
 
 #[derive(Copy, Clone)]
 pub struct Pixel(pub u8, pub u8, pub u8);
@@ -15,9 +16,7 @@ fn ray_color(r: Ray, world: &dyn Model, depth: usize) -> Vec3 {
 
     match world.hit(&r) {
         Some(hit) => match hit.material.scatter(&r, &hit) {
-            Some(scatter) => {
-                scatter.attenuation * ray_color(scatter.ray, world, depth - 1)
-            }
+            Some(scatter) => scatter.attenuation * ray_color(scatter.ray, world, depth - 1),
             _ => Vec3(0.0, 0.0, 0.0),
         },
         _ => {
@@ -60,7 +59,14 @@ fn ray_color_iter(r: Ray, world: &dyn Model, max_depth: usize) -> Vec3 {
     }
 }
 
-fn core_render(camera: &Box<Camera>, height: usize, width: usize, samples: usize, j: usize, world: &Box<dyn Model>) -> Vec<Pixel> {
+fn core_render(
+    camera: &Box<Camera>,
+    height: usize,
+    width: usize,
+    samples: usize,
+    j: usize,
+    world: &Box<dyn Model>,
+) -> Vec<Pixel> {
     let mut rng = rand::thread_rng();
 
     let mut line = Vec::with_capacity(width);
@@ -74,14 +80,24 @@ fn core_render(camera: &Box<Camera>, height: usize, width: usize, samples: usize
             pixel_color = pixel_color + ray_color_iter(r, world.as_ref(), 50);
         }
 
-        let pixel = Pixel(pixel_color.r(samples), pixel_color.g(samples), pixel_color.b(samples));
+        let pixel = Pixel(
+            pixel_color.r(samples),
+            pixel_color.g(samples),
+            pixel_color.b(samples),
+        );
         line.push(pixel);
     }
 
     return line;
 }
 
-pub fn render(world: Box<dyn Model>, camera: Box<Camera>, width: usize, height: usize, samples: usize) -> Arc<Mutex<Vec<Vec<Pixel>>>> {
+pub fn render(
+    world: Box<dyn Model>,
+    camera: Box<Camera>,
+    width: usize,
+    height: usize,
+    samples: usize,
+) -> Arc<Mutex<Vec<Vec<Pixel>>>> {
     let frame = Arc::new(Mutex::new(vec![Vec::with_capacity(5); height]));
 
     for j in 0..height {
@@ -93,15 +109,21 @@ pub fn render(world: Box<dyn Model>, camera: Box<Camera>, width: usize, height: 
     frame
 }
 
-pub fn render_par(world: Box<dyn Model>, camera: Box<Camera>, width: usize, height: usize, samples: usize) -> Arc<Mutex<Vec<Vec<Pixel>>>> {
-    rayon::ThreadPoolBuilder::new().num_threads(num_cpus::get()).build_global().unwrap();
-
+pub fn render_par(
+    world: Box<dyn Model>,
+    camera: Box<Camera>,
+    width: usize,
+    height: usize,
+    samples: usize,
+) -> Arc<Mutex<Vec<Vec<Pixel>>>> {
     let frame = Arc::new(Mutex::new(vec![Vec::with_capacity(1); height]));
+
+    let progress_bar = Arc::new(Mutex::new(ProgressBar::new(height as u64)));
 
     (0..height).into_par_iter().for_each(|j| {
         let line = core_render(&camera, height, width, samples, j, &world);
+        progress_bar.lock().unwrap().inc(1);
         frame.lock().unwrap()[height - j - 1] = line;
-        eprintln!("Done rendering line {0}", height - j - 1);
     });
 
     frame

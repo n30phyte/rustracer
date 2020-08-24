@@ -1,25 +1,25 @@
-mod vector;
 mod aabb;
-mod models;
-mod material;
-mod camera;
 mod bvh;
+mod camera;
+mod material;
+mod models;
 mod renderer;
+mod vector;
 
-use std::path::Path;
 use std::fs::File;
+use std::io::BufWriter;
 use std::io::Write;
+use std::path::Path;
 
 use rand::Rng;
 
+use crate::bvh::BvhNode;
 use camera::Camera;
 use material::{Dielectric, Lambertian, Metal};
 use models::{Model, Sphere};
-use vector::Vec3;
 use renderer::render_par;
 use std::sync::Arc;
-use crate::bvh::BvhNode;
-
+use vector::Vec3;
 
 fn generate_world() -> Box<dyn Model> {
     let mut rng = rand::thread_rng();
@@ -104,7 +104,6 @@ fn generate_world() -> Box<dyn Model> {
     Box::new(world)
 }
 
-
 fn glass_test() -> Box<dyn Model> {
     // World
     let mut world: Vec<Arc<dyn Model>> = Vec::new();
@@ -149,7 +148,7 @@ fn glass_test() -> Box<dyn Model> {
 
 fn main() {
     const ASPECT_RATIO: f32 = 3.0 / 2.0;
-    const IMAGE_WIDTH: usize = 1200;
+    const IMAGE_WIDTH: usize = 6000;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as usize;
     const SAMPLES_PER_PIXEL: usize = 500;
 
@@ -165,11 +164,17 @@ fn main() {
         10.0,
     );
 
-
-    let image = render_par(world, Box::from(camera), IMAGE_WIDTH, IMAGE_HEIGHT, SAMPLES_PER_PIXEL);
+    eprintln!("Rendering image...");
+    let image = render_par(
+        world,
+        Box::from(camera),
+        IMAGE_WIDTH,
+        IMAGE_HEIGHT,
+        SAMPLES_PER_PIXEL,
+    );
 
     let path: &Path = Path::new(r"render.png");
-    let out_file: File = File::create(path).unwrap();
+    let out_file = BufWriter::new(File::create(path).unwrap());
 
     let mut encoder = png::Encoder::new(out_file, IMAGE_WIDTH as u32, IMAGE_HEIGHT as u32);
 
@@ -178,7 +183,6 @@ fn main() {
 
     let writer = encoder.write_header().unwrap();
     let mut streamwriter = writer.into_stream_writer();
-
 
     eprintln!("Saving image...");
     for line in &*image.lock().unwrap() {

@@ -33,7 +33,13 @@ impl BvhNode {
         return <[f32; 3]>::from(box_a.min)[c as usize] < <[f32; 3]>::from(box_b.min)[c as usize];
     }
 
-    pub fn new(models: &mut Vec<Arc<dyn Model>>, start: usize, end: usize, time0: f32, time1: f32) -> BvhNode {
+    pub fn new(
+        models: &mut Vec<Arc<dyn Model>>,
+        start: usize,
+        end: usize,
+        time0: f32,
+        time1: f32,
+    ) -> BvhNode {
         let mut rng = rand::thread_rng();
         let axis: u8 = rng.gen_range(0, 2);
         let comparator = |a: Arc<dyn Model>, b: Arc<dyn Model>| BvhNode::box_compare(a, b, axis);
@@ -83,7 +89,6 @@ impl BvhNode {
         if let Some(rbox) = right.bounding_box(time0, time1) {
             box_right = rbox;
         }
-
 
         BvhNode {
             left,
