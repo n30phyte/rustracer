@@ -10,7 +10,6 @@ edition = "2018"
 lto = "fat"
 codegen-units = 1
 
-
 [profile.benchmark]
 inherits = "release"
 lto = "fat"

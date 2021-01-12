@@ -1,4 +1,5 @@
-mod aabb;
+#![feature(repr_simd)]
+
 mod bvh;
 mod camera;
 mod material;
@@ -38,12 +39,12 @@ fn generate_world() -> Box<dyn Model> {
 
     for a in -11..11 {
         for b in -11..11 {
-            let random_mat = rng.gen::<f32>();
+            let random_mat = rng.gen::<f64>();
 
             let center = Vec3(
-                a as f32 + 0.9 * rng.gen::<f32>(),
+                a as f64 + 0.9 * rng.gen::<f64>(),
                 0.2,
-                b as f32 + 0.9 * rng.gen::<f32>(),
+                b as f64 + 0.9 * rng.gen::<f64>(),
             );
 
             if (center - Vec3(4.0, 0.2, 0.0)).len() > 0.9 {
@@ -141,15 +142,13 @@ fn glass_test() -> Box<dyn Model> {
             fuzz: 0.0,
         }),
     }));
-
-    let size = world.len();
-    Box::new(BvhNode::new(&mut world, 0, size, 0.0, 0.0))
+    Box::new( world)
 }
 
 fn main() {
-    const ASPECT_RATIO: f32 = 3.0 / 2.0;
-    const IMAGE_WIDTH: usize = 6000;
-    const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as usize;
+    const ASPECT_RATIO: f64 = 3.0 / 2.0;
+    const IMAGE_WIDTH: usize = 1200;
+    const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const SAMPLES_PER_PIXEL: usize = 500;
 
     let world = generate_world();

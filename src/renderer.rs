@@ -74,8 +74,8 @@ fn core_render(
         let mut pixel_color = Vec3(0.0, 0.0, 0.0);
 
         for _ in 0..samples {
-            let u = (i as f32 + rng.gen::<f32>()) / (width - 1) as f32;
-            let v = (j as f32 + rng.gen::<f32>()) / (height - 1) as f32;
+            let u = (i as f64 + rng.gen::<f64>()) / (width - 1) as f64;
+            let v = (j as f64 + rng.gen::<f64>()) / (height - 1) as f64;
             let r = camera.get_ray(u, v);
             pixel_color = pixel_color + ray_color_iter(r, world.as_ref(), 50);
         }
